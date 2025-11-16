@@ -77,7 +77,7 @@ namespace XRL.World.Parts
 
 		public override bool WantTurnTick() => true;
 
-		public override void TurnTick(long TurnNumber) => CheckForSpills();
+		public override void TurnTick(long TurnTick, int Amount) => CheckForSpills();
 
 		/// <summary>
 		/// Core AI loop. Searches the current active zone for the closest liquid pool, and if any are found, assigns a task to clean it up.
