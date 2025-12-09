@@ -23,7 +23,7 @@ namespace XRL.World.Parts
 
 		public override bool HandleEvent(GetInventoryActionsAlwaysEvent E)
 		{
-			if (!ParentObject.IsPlayerControlled() && !ParentObject.Brain.IsHostileTowards(E.Actor) && !ParentObject.HasPart<SocialRoles>())
+			if (RespectsAuthorityOf(E.Actor))
 			{
 				E.AddAction("Configure", "configure", "Configure", Key: 'c');
 				if (CanDeactivate)
@@ -55,6 +55,22 @@ namespace XRL.World.Parts
 				if (Popup.ShowYesNoCancel($"Really deactivate {ParentObject.GetDisplayName()}?") == DialogResult.Yes)
 				{
 					XDidYToZ(E.Actor, "deactivate", ParentObject);
+					IInventory dropInv = ParentObject.GetDropInventory();
+					if (dropInv != null)
+					{
+						List<GameObject> objectsToDrop = ParentObject.Inventory.Objects.Where(x => x.IsReal).ToList();
+						if (objectsToDrop.Count() > 0)
+						{
+							XDidY(ParentObject, "relinquish", $"{ParentObject.its} inventory onto the ground");
+							for (int i = 0; i < objectsToDrop.Count(); i++)
+							{
+								GameObject go = objectsToDrop[i];
+								go.RemoveFromContext(E);
+								dropInv.AddObjectToInventory(go, ParentObject, true, ParentEvent: E);
+								DroppedEvent.Send(ParentObject, go);
+							}
+						}
+					}
 					ParentObject.ReplaceWith(GameObject.CreateUnmodified("Ceres_CleaningRobots_DormantCleaner"));
 					E.RequestInterfaceExit();
 				}
@@ -77,7 +93,7 @@ namespace XRL.World.Parts
 
 		public override bool WantTurnTick() => true;
 
-		public override void TurnTick(long TurnNumber) => CheckForSpills();
+		public override void TurnTick(long TimeTick, int Amount) => CheckForSpills();
 
 		/// <summary>
 		/// Core AI loop. Searches the current active zone for the closest liquid pool, and if any are found, assigns a task to clean it up.
@@ -130,14 +146,33 @@ namespace XRL.World.Parts
 		public int CleaningThreshold = 20;
 
 		/// <summary>
-		/// If <code>true</code>, only impure liquids will be cleaned up. Pure liquids will be ignored, regardless of type or volume.
+		/// If true, only impure liquids will be cleaned up. Pure liquids will be ignored, regardless of type or volume.
 		/// </summary>
 		public bool ImpureOnly = true;
 
 		/// <summary>
-		/// If <code>true</code>, this cleaner can be deactivated and moved elsewhere.
+		/// If false, this cleaner cannot manually be deactivated, even if it respects the player's authority.
 		/// </summary>
 		public bool CanDeactivate = true;
+
+		/// <summary>
+		/// Determines whether the cleaner respects the authority of the provided <see cref="GameObject"/>.
+		/// An object with no respected authority cannot deactivate or configure the cleaner.
+		/// </summary>
+		public bool RespectsAuthorityOf(GameObject go)
+		{
+			// we're doing our own thing, thank you very much
+			if (ParentObject.HasPart<SocialRoles>() || ParentObject.HasIntProperty("Villager"))
+				return false;
+			// heck no, you're a jerk
+			if (ParentObject.Brain.IsHostileTowards(go))
+				return false;
+			// we've got other stuff to do
+			if (ParentObject.PartyLeader != null && !ParentObject.IsPlayerLed())
+				return false;
+			// well one must imagine Sisyphus happy we suppose
+			return true;
+		}
 
 		/// <summary>
 		/// Checks whether or not a given <see cref="LiquidVolume"/> should be cleaned.

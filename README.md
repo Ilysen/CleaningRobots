@@ -10,6 +10,12 @@ This mod was almost entirely self-made, but **A Blessed Feline** from the Caves 
 
 ## Changelog
 
+### 9 December, 2024
+#### Version 1.1.1
+* Retooled the way that cleaners determine who is allowed to configure or deactivate them. Cleaners that are doing their own thing (villagers, Mechanimists, etc.) cannot be configured, and neither can cleaners that are hostile to you or following another creature. Any others will accept being configured or deactivated.
+* Deactivating a cleaner now causes everything in its inventory to drop onto the ground instead of being deleted outright. Can't say they weren't doing their job well, though.
+* Dormant cleaners now have gray highlights, to visually differentiate them from active cleaners.
+
 ### 23 September, 2024
 #### Version 1.1
 * Updated to work with game version 2.0.207.101.

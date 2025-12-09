@@ -12,7 +12,7 @@
 		<stag Name="Scrap" />
 	</object>
 	<object Name="Ceres_CleaningRobots_DormantCleaner" Inherits="Item">
-		<part Name="Render" DisplayName="{{c|dormant cleaner}}" RenderString="m" ColorString="&amp;c" Tile="Creatures/Cleaner.png" DetailColor="Y" />
+		<part Name="Render" DisplayName="{{c|dormant cleaner}}" RenderString="m" ColorString="&amp;c" Tile="Creatures/Cleaner.png" DetailColor="y" />
 		<part Name="Commerce" Value="30" />
 		<part Name="Description" Short="A little metal cylinder patiently awaits becoming. Wiry arms were hooked to brackets and folded across the curving plane." />
 		<part Name="Physics" Weight="20" />
